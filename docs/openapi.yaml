@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info: { title: Asset Management API, version: 1.0.0, license: { name: MIT, identifier: MIT } }
+servers: [{ url: 'http://localhost:8080' }]
+security: [{ bearerAuth: [] }]
+paths:
+  /api/auth/login:
+    post: { summary: Log in, security: [], responses: { '200': { description: Token }, '401': { description: Invalid credentials } } }
+  /api/auth/logout:
+    post: { summary: Revoke session, responses: { '204': { description: Logged out }, '401': { description: Unauthorized } } }
+  /api/dashboard:
+    get: { summary: Role-scoped asset summary, responses: { '200': { description: Dashboard }, '401': { description: Unauthorized } } }
+  /api/users:
+    post: { summary: Create user as admin, responses: { '201': { description: Created }, '403': { description: Forbidden } } }
+  /api/assets:
+    get: { summary: Search visible assets, responses: { '200': { description: Paginated assets }, '401': { description: Unauthorized } } }
+    post: { summary: Create asset as custodian or admin, responses: { '201': { description: Created }, '403': { description: Forbidden } } }
+  /api/assets/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: integer, minimum: 1 } }]
+    get: { summary: Read an accessible asset, responses: { '200': { description: Asset }, '403': { description: Ownership check failed } } }
+    put: { summary: Update metadata as custodian or admin, responses: { '200': { description: Updated }, '409': { description: Conflict } } }
+  /api/assets/{id}/transition:
+    parameters: [{ name: id, in: path, required: true, schema: { type: integer, minimum: 1 } }]
+    post: { summary: "Assign, return, maintain, or retire an asset", responses: { '200': { description: Updated }, '409': { description: Invalid transition } } }
+  /api/assets/{id}/events:
+    parameters: [{ name: id, in: path, required: true, schema: { type: integer, minimum: 1 } }]
+    get: { summary: Read immutable asset history, responses: { '200': { description: Events }, '403': { description: Forbidden } } }
+components: { securitySchemes: { bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT } } }
